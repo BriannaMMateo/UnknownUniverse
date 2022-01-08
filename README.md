@@ -1,5 +1,5 @@
 # UnknownUniverse
- For my CSC240 Computer Graphics course I created a game using Javascript and Blender.
+ For my CSC240 Computer Graphics course I created a game using Javascript, Three.Js,and Blender.
 
 Welcome to the Unknown Universe! 
 
