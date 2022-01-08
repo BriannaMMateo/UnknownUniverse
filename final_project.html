@@ -1,0 +1,449 @@
+
+<!DOCTYPE html>
+<head>
+<title>Unknown Universe</title>
+<script src="three.min.js"></script>
+<script src="GLTFLoader.js"></script>
+<script src="KeyboardState.js"></script>
+
+<!-- Modified from the MeshFaceMaterial.html example in our textbook 
+    (Introduction to Computer Graphics) by David J. Eck -->
+
+<script>
+ var halo
+ var timer=0
+ var life 
+  var rocklist=[]
+  var rockboxlist=[]
+  var cylinderboxlist=[]
+  var cylinderlist =[]
+  var robotObj;
+  var direction=1
+ 
+  var ufolist 
+  var myscene, scene, camera, renderer
+  var keyboard = new KeyboardState();
+  var canvas; 
+  var robotHelper, robotBox, sceneBoxes = [];
+
+function addSceneCollider(obj,list) {
+    obox = new THREE.Box3();
+    obox.setFromObject(obj);   
+    list.push(obox);
+}
+
+  function makeUFO(cx,cy,cz,size){       
+   var ringgeometry = new THREE.SphereGeometry( 2, 20, 20 );
+   var ringmaterial = new THREE.MeshStandardMaterial();
+
+ var loader = new THREE.TextureLoader();
+      ringmaterial.map = loader.load("Sci-Fi_Wall_012_basecolor.jpg")
+      ringmaterial.bumpMap = loader.load("Sci-Fi_Wall_012_height.png");
+      ringmaterial.bumpScale = 2;
+
+
+   var ring = new THREE.Mesh( ringgeometry, ringmaterial );
+  ring.scale.y = 1;
+  ring.position.x=cx
+  ring.position.y=cy
+  ring.position.z=cz
+  ring.scale.x=size
+  ring.scale.y=size
+
+var geometry = new THREE.SphereGeometry( 1,20,20);
+var spherematerial = new THREE.MeshStandardMaterial()
+
+      var loader = new THREE.TextureLoader();
+      spherematerial.map = loader.load("Metal_Plate_Sci-Fi_002_basecolor.jpg")
+      spherematerial.bumpMap = loader.load("Metal_Plate_Sci-Fi_002_height.jpg");
+      spherematerial.bumpScale = 7;
+
+var sphere= new THREE.Mesh( geometry, spherematerial );
+sphere.rotation.z=Math.random()*Math.PI
+sphere.position.x=cx
+sphere.position.y=cy
+sphere.position.z=76
+sphere.scale.x=size-1
+sphere.scale.y=size-1
+sphere.scale.z=size-1
+
+ufo=new THREE.Object3D()
+  scene.add(ufo);
+  ufo.add(ring)
+  ufo.add(sphere)
+  ufo.speed=(Math.random()*0.003)+0.001;
+  ufolist.push(ufo)
+  scene.add(ufo);
+}
+
+
+function makeRock(cx,cy,cz,size,color){
+      var geometry = new THREE.CylinderGeometry(1, 1, 3, 6);
+      var rockmaterial = new THREE.MeshPhongMaterial(); 
+      var loader = new THREE.TextureLoader();
+      rockmaterial.map = loader.load("Lava_002_COLOR.png")
+      rockmaterial.bumpMap = loader.load("Lava_002_DISP.png");
+      rockmaterial.bumpScale = 7;
+      var rock = new THREE.Mesh( geometry, rockmaterial );
+      rock.rotation.set(Math.PI/2,0,0)    
+      rock.position.x=cx
+      rock.position.y=cy
+      rock.position.z=cz
+      rock.scale.x=size
+      rock.scale.y=size
+      rock.scale.z=size
+      scene.add( rock );  
+    addSceneCollider(rock,rockboxlist); 
+    rocklist.push(rock)  
+}
+
+function makeCylinder(cx,cy,cz,size,color){
+        var geometry = new THREE.CylinderGeometry( 2.3, 2.3, 50, 15);
+        var cylmaterial = new THREE.MeshStandardMaterial(); 
+        var loader = new THREE.TextureLoader();
+        cylmaterial.map = loader.load("Rock_041_basecolor.jpg")
+        cylmaterial.bumpMap = loader.load("Rock_041_height.png");
+        cylmaterial.bumpScale = 2;
+         var cylinder = new THREE.Mesh( geometry, cylmaterial );
+      cylinder.rotation.set(Math.PI/2,0,0)    
+      cylinder.position.x=cx
+      cylinder.position.y=cy
+      cylinder.position.z=cz
+      cylinder.scale.x=size
+      cylinder.scale.y=size
+      cylinder.scale.z=size
+      scene.add( cylinder ); 
+      addSceneCollider(cylinder,cylinderboxlist);
+      cylinderlist.push(cylinder)     
+}
+
+    function createWorld() {
+       
+    myscene = new THREE.Scene(); // Create a new scene which we can add objects to.
+    scene = new THREE.Object3D();
+    myscene.add(scene);
+      
+      camera = new THREE.PerspectiveCamera(60,600/300,1,600);
+      camera.position.z =13
+       camera.rotation.x+=Math.PI/2
+      camera.position.x=10
+      camera.position.y=3
+      // camera.rotation.x=Math.PI/2
+      sunLight = new THREE.PointLight("purple",1, 1200); // color, intensity, and distance
+        sunLight.position.set(-80,-50,-10);
+        scene.add(sunLight);
+         sunLight.castShadow = true;
+
+   ambientLight = new THREE.AmbientLight("white",0.6);
+      scene.add(ambientLight);
+        
+        var light = new THREE.DirectionalLight("white",0.6)
+        scene.add(light);
+        light.position.z = 3
+        light.position.y=-1
+        light.position.x=0
+
+      for (i=0;i<40;i++){
+        var cx = Math.floor(Math.random()*(400-(-400)))+ (-400);
+        var cy=  Math.floor(Math.random()*(400-(-400)))+ (-400);
+        var cz= 70
+        var size = 8;
+       makeUFO(cx,cy,cz,size)
+       }
+
+        for (i=0;i<80;i++){
+        var cx = Math.floor(Math.random()*(200-(-200)))+ (-200);
+        var cy=  Math.floor(Math.random()*(200-(-200)))+ (-200);
+        var cz= 0
+        var size = 2;
+       makeRock(cx,cy,cz,size)
+       }
+        for (i=0;i<100;i++){
+        var cx = Math.floor(Math.random()*(200-(-200)))+ (-200);
+        var cy= Math.floor(Math.random()*(200-(-200)))+ (-200);
+        var cz= 0
+        var size = 2;
+        makeCylinder(cx,cy,cz,size)
+        } 
+
+        var tloader = new THREE.TextureLoader();
+        var groundMap = tloader.load("Sand_004_COLOR.png");
+        var groundBump = tloader.load("Sand_004_Height.png");
+        groundMap.wrapS = THREE.RepeatWrapping;
+        groundMap.wrapT = THREE.RepeatWrapping;
+        groundMap.repeat.set( 50,50 );
+        groundBump.wrapS = THREE.RepeatWrapping;
+        groundBump.wrapT = THREE.RepeatWrapping;
+        groundBump.repeat.set( 50,50 );
+        var groundMaterial = new THREE.MeshPhongMaterial({ map: groundMap, bumpMap: groundBump});
+        groundMaterial.bumpScale = 2;
+        ground = new THREE.Mesh( new THREE.PlaneGeometry(400,400), groundMaterial );
+        scene.add(ground);
+
+        
+
+var geometry = new THREE.RingGeometry( 0.5, 0.9, 20 );
+var meshmaterial = new THREE.MeshStandardMaterial( {side: THREE.DoubleSide });
+var mesh = new THREE.Mesh( geometry, meshmaterial );
+        var loader = new THREE.TextureLoader();
+        meshmaterial.map = loader.load("Agate_002_COLOR.jpg")
+        meshmaterial.bumpMap = loader.load("Agate_002_DISP.png");
+        meshmaterial.bumpScale = 2;
+
+
+halo=new THREE.Object3D();
+halo.add(mesh)
+halo.scale.x=0.5
+halo.scale.y=0.5
+halo.scale.z=0.5
+halo.rotation.x=Math.PI/2
+halo.position.y=1.5
+halo.position.z=0
+halo.position.x=-0.5
+
+
+    var loader = new THREE.TextureLoader();
+    var bgTexture = loader.load('milkyway.jpg');
+    myscene.background = bgTexture;
+
+  var modelloader = new THREE.GLTFLoader();
+
+        modelloader.load(
+
+            'robot_v13blend.glb',
+            function ( robot ) {
+                robotObj= robot.scene;
+                //console.log("error")  // search through the loaded file for the object we want
+                scene.add( robotObj );
+                 robotObj.position.y=30
+                 robotObj.position.x=5
+                robotObj.rotation.x=Math.PI/2
+
+                 robotObj.position.z=7
+                 robotObj.scale.x=5
+                 robotObj.scale.y=5
+                 robotObj.scale.z=5
+                 robotObj.add(halo)
+              
+            camera.position.x=5
+            
+            const box = new THREE.Box3().setFromObject(robotObj);
+            const boxSize = box.getSize(new THREE.Vector3()).length();
+            const boxCenter = box.getCenter(new THREE.Vector3());
+            
+            robotBox = new THREE.Box3();
+            robotBox.setFromObject(robotObj);
+
+
+            //UNCOMMENT TO SHOW BOUNDING BOXES
+            robotHelper = new THREE.BoxHelper(robotObj,"red");
+         
+          requestAnimationFrame( render );  
+            },
+            // called while loading is progressing
+            function ( xhr ) {
+                console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
+            },
+            // called when loading has errors
+            function ( error ) {
+                console.log( 'An error happened' );
+                console.log(error)
+            }
+        );
+}
+
+var score=0
+var life=3
+var lastCollide=60
+var newCollide
+
+ function restart() {
+      document.location.href ="";  
+    }
+
+function updateAnimation() {
+   keyboard.update();
+  
+    var oldX = robotObj.position.x;
+    var oldY = robotObj.position.y;
+    var oldZ = robotObj.position.z;
+    var camoldX = camera.position.x;
+    var camoldY = camera.position.y;
+    var camoldZ = camera.position.z;
+    var newX = oldX, newY = oldY, newZ = oldZ;
+
+
+
+     // current position
+          if ( keyboard.pressed("left") ) {
+          if(direction!=2){
+            robotObj.rotation.y = -Math.PI/2;
+            direction = 2;}
+          if(robotObj.position.x>-300){
+            robotObj.position.x-= 0.3;
+            camera.position.x+=-0.3}
+
+        } else if ( keyboard.pressed("right") ) {
+           if(direction!=0){
+             robotObj.rotation.y = Math.PI/2;
+             direction = 0;
+           }
+           if(robotObj.position.x<300){
+            robotObj.position.x += 0.3;
+            camera.position.x+=0.3}
+        } 
+         if (keyboard.pressed("up")  ) {
+           if(direction!= 1){
+            robotObj.rotation.y =-Math.PI;
+            direction = 1;}
+            if(robotObj.position.y<450){
+            robotObj.position.y += 0.3;
+            camera.position.y+=0.3}
+        } else if ( keyboard.pressed("down") ) {
+            if(direction!=3){
+              robotObj.rotation.y = 0;
+              direction =3 ;
+            }
+            if(robotObj.position.y>-600){
+            robotObj.position.y -= 0.3;
+            camera.position.y+=-0.3}
+        }
+
+if (keyboard.pressed("space")){
+  restart()
+}
+if (robotObj.position.x<-200){
+      robotObj.position.x = oldX;
+      robotObj.position.y = oldY;
+      robotObj.position.z = oldZ;
+      camera.position.x = camoldX;
+      camera.position.y = camoldY;
+      camera.position.z = camoldZ;
+   }
+if ( robotObj.position.x>200){
+    robotObj.position.x = oldX;
+      robotObj.position.y = oldY;
+      robotObj.position.z = oldZ;
+      camera.position.x = camoldX;
+      camera.position.y = camoldY;
+      camera.position.z = camoldZ;
+}
+ if (robotObj.position.y<-200){
+      robotObj.position.x = oldX;
+      robotObj.position.y = oldY;
+      robotObj.position.z = oldZ;
+      camera.position.x = camoldX;
+      camera.position.y = camoldY;
+      camera.position.z = camoldZ;
+   }
+if ( robotObj.position.y>200){
+    robotObj.position.x = oldX;
+      robotObj.position.y = oldY;
+      robotObj.position.z = oldZ;
+      camera.position.x = camoldX;
+      camera.position.y = camoldY;
+      camera.position.z = camoldZ;
+}
+
+    robotBox.setFromObject(robotObj); 
+    if (robotHelper) { 
+        robotHelper.update();
+    }
+    var isCollision = false;
+    
+    for (var i = 0; !isCollision &&(i < rockboxlist.length); i++) {		
+      isCollision = robotBox.intersectsBox(rockboxlist[i]);
+      
+       if (isCollision) {
+         scene.remove(rocklist[i])
+         scene.remove(rockboxlist[i])
+         rockboxlist.splice(i,1)
+         rocklist.splice(i,1)
+       if(score!="YOU WIN!"){
+          score=score+1
+          }
+         if (score==30){ 
+        score="YOU WIN!"
+    }
+       }
+       if(score=="YOU WIN!"){
+      robotObj.position.x = oldX;
+      robotObj.position.y = oldY;
+      robotObj.position.z = oldZ;
+      camera.position.x = camoldX;
+      camera.position.y = camoldY;
+      camera.position.z = camoldZ;
+          }
+       }
+
+    for (var i = 0; !isCollision &&(i < cylinderboxlist.length); i++){		
+        isCollision = robotBox.intersectsBox(cylinderboxlist[i]);
+         if (isCollision) {
+      robotObj.position.x = oldX;
+      robotObj.position.y = oldY;
+      robotObj.position.z = oldZ;
+      camera.position.x = camoldX;
+      camera.position.y = camoldY;
+      camera.position.z = camoldZ;
+        if (timer <= 0) {
+          timer=300;
+          life--
+          }
+
+         if (life===0){ 
+        life="YOU LOSE"
+    } 
+         }
+
+    }
+}
+
+    function render() {
+      if (timer>0){
+         timer--
+      if (life=="YOU LOSE"){
+        timer=0
+      }
+      }
+
+
+    
+    if (life!="YOU LOSE"){
+updateAnimation();
+    }
+    
+    document.getElementById("overlay").innerHTML = "&nbsp;Your Score: "+score+                    "                     Lives: "+life+           "    Invincibility Countdown:        "+timer  ;
+
+    renderer.render(myscene, camera);
+    requestAnimationFrame( render )
+   halo.rotation.z+=0.02
+    halo.rotation.y+=0.02
+    halo.rotation.x+=0.02
+   for (i=0;i<ufolist.length;i++){
+       ufolist[i].rotation.z+=ufolist[i].speed
+}
+}
+    // The init() function is called by the onload event when the document has loaded.
+    function init() {
+        try {
+            canvas = document.getElementById("glcanvas");
+            renderer = new THREE.WebGLRenderer( { canvas: canvas, antialias: true} );
+        }
+        catch (e) {
+            document.getElementById("canvas-holder").innerHTML = "<h3><b>WebGL is not available.</b><h3>";
+            return;
+        }
+        ufolist=[]
+        createWorld();
+        
+}
+</script>
+
+</head>
+<body onload="init()">
+<div id="canvas-holder">
+    <canvas id="glcanvas" width="800" height="400"></canvas>
+</div>
+ <p id="overlay" style="position: absolute; top: 0; z-index:1; color: orange; padding-left: 18pt;">&nbsp;Click Window to Start: Use Arrows To Move</p>
+</body>
+</html>
